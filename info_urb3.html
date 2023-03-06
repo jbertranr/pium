@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PIUM - Portal Informació Urbanísitica Mataró</title>
+  <link rel="stylesheet" href="js/extern/leaflet1.5.1/leaflet.css" />
+  <link rel="stylesheet" href="css/info_urb.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous">
+<body>
+
+
+
+  <div class="mainwrp">
+    <div class="infowrp no-print">
+      <div class="titlewrp">
+        <div class="title__logo"></div>
+        <div class="title__txt">
+          <div class="title__txt--titol">Portal Informació Urbanística</div>
+          <div class="title__txt--subtitol"> Ajuntament de Mataró</div>
+        </div>
+      </div>
+
+      <div class="cercawrp">
+        <div class="cerca__title"></div>
+          <div class="cerca-inpwrap" >
+            <form id="frm-cerca" onsubmit="return cercaRef('');">
+              <input id="cerca-inp" placeholder="Adreça o Referència Cadastral" >               
+              <div class='cerca__line cerca__line__boto'  style="font-size:0.8em;float:left;margin-right:0em;margin-top:-0.0em;width:1.8em;height:1.3em;margin-left:1em;color:#777" onclick="return cercaRef('ss')">
+                <div class='cerca__line__boto--txt'>                  
+                </div> 
+                <div class='cerca__line__boto--icon'>
+                  <i class='fa fa-search'></i>                         
+                </div>
+              </div> 
+            </form>
+          </div>
+          <div class="cerca__data">
+            <div class='cerca__result'> </div> 
+          </div>    
+      </div>
+    </div>
+    <div class="mapwrp no-print"> 
+      <div id="map"></div>
+    </div>    
+  </div>
+
+  <div id="panellInfo"class="dataPane" style="display:none;overflow-y:auto;overflow-x:hidden;position:fixed;top:63px;bottom:17px;background-color:#fff;right:10px;z-index:999;opacity:0.95;border:1px solid #999;width:35em;border-radius: 0.2em;  padding: 0.5em 1em;"> 
+    <div class="panellInfo__menu"></div>  
+    <div class="panellInfo__fitxa">
+      <div class="datawrp"></div>  
+    </div>
+  </div>
+
+  <div id="panellInfo2" class="dataPane"
+    style="overflow-y:auto;overflow-x:hidden;position:fixed;width:50em;height:30em;top:10em;left:50%;transform: translateX(-50%); background-color:#fff;z-index:999;opacity:0.95;border:1px solid #999;border-radius: 0.2em;  padding: 0.5em 1em;">
+    <div class="cerca__line" style="cursor:pointer;float:right;margin-right:0em;color:#579" onclick="$('#panellInfo2').hide()">   
+      <div class="cerca__line__boto--txt">          </div>   
+      <div class="cerca__line__boto--icon">     
+        <i class="fa fa-close"></i>   
+      </div> 
+    </div>
+    <div class="titlewrp" >
+      <div class="title__logo"></div>
+      <div class="title__txt">
+        <div class="title__txt--titol">Portal Informació Urbanística</div>
+        <div class="title__txt--subtitol" onclick=" recuperaWKT( 'DS_ACCES01' ,'ACCES_CODI','12186'); "> Ajuntament de
+          Mataró</div>
+      </div>
+    </div>
+    <div class="title__txt title__txt--subtitol" style="width:96%;margin:1em;float:left;font-size:1.1em;text-align:left;font-size:1em;height:auto">
+      Aquest portal permet accedir a la informació urbanística aplicable a la parcel·la d’acord amb les dades que consten al 
+      Servei de Llicències.Podeu cercar la informació per adreça, referència cadastral o
+      movent-vos per sobre el mapa i fent un clic damunt una parcel·la.
+    </div>
+    <div class="title__txt title__txt--subtitol" style="width:96%;margin:1em;float:left;font-size:1.1em;text-align:left;font-size:1em;height:auto" >
+      Obtindreu una fitxa informativa no vinculant on es mostra el règim
+      urbanístic vigent en el moment que s’efectua la consulta i els
+      paràmetres principals a tenir en compte per cada parcel·la.
+      La fitxa també conté diversos enllaços: a la clau urbanística
+      d’aplicació, fitxes de patrimoni arquitectònic, fitxes masies i cases
+      rurals, resum consolidat dels articles normatius d’aplicació i enllaços
+      a la normativa complerta del planejament vigent
+    </div>
+    <div class="title__txt title__txt--subtitol" style="width:96%;margin:1em;float:left;font-size:1.1em;text-align:left;font-size:1em;height:auto">
+        Si teniu dubtes en la informació facilitada podeu notificar una
+        incidència referida a una fitxa concreta o demanar hora de visita.
+    </div>
+  </div>
+  
+  <!-- ================ javascript ================== -->
+  <script src="js/extern/jquery3.4.1/jquery-3.4.1.min.js"></script>
+  <script src="js/extern/leaflet1.5.1/leaflet.js"></script>
+  <script src="js/extern/leaflet-omnivore0.3.1/leaflet-omnivore.min.js"></script>
+  <script src="js/extern/proj4js2.4.3/proj4.js"></script>
+  <script src="js/extern/proj4leaflet1.0.1/proj4leaflet.js"></script>
+  <script src="js/extern/matmap0.1/map.js"></script>
+  <script src="js/info_urb_https.js"></script>
+  <script>
+    var get = {};
+    var query = window.location.search.substring(1).split("&");
+    for (var i = 0, max = query.length; i < max; i++) {
+      if (query[i] === "") // check for trailing & with no param
+        continue;
+      var param = query[i].split("=");
+      get[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
+    }
+    if (get.hasOwnProperty('refCadastral')) {
+      parseInfoUrbRC(get.refCadastral);      
+    }
+
+    if (get.hasOwnProperty('codi')) {
+          
+      if (get.hasOwnProperty('tipusFitxa')) {
+        parseInfoUrbIU(get.codi, get.tipusFitxa);      
+      } 
+      else {  
+        parseInfoUrbIU(get.codi); 
+      }  
+      $('#panellInfo2')        
+        .hide();  
+      
+      $('#panellInfo')        
+        .css({'left':'2em'});  
+        
+      $('.infowrp')
+        .hide();    
+
+      $('.mapwrp')
+        .hide(); 
+
+    }
+
+</script>
+
+</body>
+
+</html>

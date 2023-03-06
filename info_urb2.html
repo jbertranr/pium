@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mapes javascript</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/MarkerCluster.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="css/info_urb.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" /></head>
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.2.2/css/leaflet-sidebar.min.css" />
+
+<body>
+  <div class="mainwrp">
+    <div class="infowrp no-print">
+      <div class="titlewrp">
+        <div class="title__logo"></div>
+        <div class="title__txt">
+          <div class="title__txt--titol">Portal Informació Urbanística</div>
+          <div class="title__txt--subtitol" onclick=" recuperaWKT( 'DS_ACCES01' ,'ACCES_CODI','12186'); "> Ajuntament de Mataró</div>
+        </div>
+      </div>
+      <div class="cercawrp">
+        <div class="cerca__title"></div>
+          <div class="cerca-inpwrap" >
+            <form id="frm-cerca" onsubmit="activaTema ($('.cerca__result'), 'acces', $('#cerca-inp').val(), 10); activaTema ($('.cerca__result'), 'parcel', $('#cerca-inp').val(), 10); return false;">
+              <input id="cerca-inp" placeholder="Filtra dades ...">  <!-- button onclick="activaTema ($('.cerca__result'), 'acces', $('#cerca-inp').val(), 10);activaTema ($('.cerca__result'), 'parcel', $('#cerca-inp').val(), 10)">Cercar</button--> 
+            </form>
+          </div>
+          <div class="cerca__data">
+            <div class='cerca__result'> </div> 
+          </div>    
+      </div>
+    </div>
+    <div class="mapwrp no-print">
+      <div id="map"></div>
+    </div>
+    <div class="panewrp"  style="display:none">
+      <div class="print-mapwrp">
+          <div id="print-map"> </div>
+      </div>
+      <div class="datawrp"></div>
+      <!-- >div class="geomdatawrp">
+        <div class="geomdata"></div>
+      </div-->
+    </div>
+  </div>
+  <!-- ================ javascript ================== -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/leaflet.markercluster.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/leaflet.markercluster-src.js "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.1/proj4leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.2.2/js/leaflet-sidebar.min.js"></script>  
+  <script src="js/map.js"></script>
+  <script src="js/info_urb.js"></script>
+</body>
+
+</html>

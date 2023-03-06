@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mapes javascript</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/MarkerCluster.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="css/info_urb.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" /></head>
+
+<body>
+  <div class="mainwrp--print">
+    <div class="infowrp no-print no-display">
+      <div class="titlewrp">
+        <div class="title__logo"></div>
+        <div class="title__txt">
+          <div class="title__txt--titol">Informació Urbanística</div>
+          <div class="title__txt--subtitol"> Ajuntament de Mataró</div>
+        </div>
+      </div>
+      <div class="cercawrp">
+        <div class="cerca__title"></div>
+          <div class="cerca-inpwrap" onsubmit="javascript:activaTema($('.cerca__result'), 'acces', $('#cerca-inp').val(), 10);return false;">
+            <form id="frm-cerca">
+              <input id="cerca-inp" placeholder="Filtra dades ...">  <button onclick="activaTema ($('.cerca__result'), 'acces', $('#cerca-inp').val(), 10)">Cercar</button> 
+            </form>
+          </div>
+          <div class="cerca__data">
+            <div class='cerca__result'> </div> 
+          </div>    
+      </div>
+    </div>
+    <div class="mapwrp no-print no-display ">
+      <div id="map"></div>
+    </div -->
+    <div class="panewrp"> 
+
+      <div class="datawrp"></div>
+    </div>
+  </div>
+  <!-- ================ javascript ================== -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/leaflet.markercluster.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/leaflet.markercluster-src.js "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.1/proj4leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/info_urb.js"></script>
+  <script>
+    var get = {};
+    var query = window.location.search.substring(1).split("&");
+    for (var i = 0, max = query.length; i < max; i++) {
+      if (query[i] === "") // check for trailing & with no param
+        continue;
+      var param = query[i].split("=");
+      get[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
+    }
+    if (get.hasOwnProperty('refCadastral')) {
+      parseInfoUrbRC(get.refCadastral);      
+    }
+
+    if (get.hasOwnProperty('codi')) {
+          
+      if (get.hasOwnProperty('tipusFitxa')) {
+        parseInfoUrbIU(get.codi, get.tipusFitxa);      
+      } 
+      else {  
+        parseInfoUrbIU(get.codi); 
+      }  
+    }
+    
+
+
+
+  </script>
+</body>
+
+</html>

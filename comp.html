@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PIUM - Portal Informació Urbanística Mataró</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />         
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/MarkerCluster.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="css/info_urb.css" />
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>          
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>       
+  <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/leaflet.markercluster.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.5/leaflet.markercluster-src.js "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.1/proj4leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.control.opacity@1.5.0/dist/L.Control.Opacity.min.js"></script>
+  <script src="https://mapes.mataro.cat/OpenData/css/mapaJS/src/js/map_plugin.js"></script>  
+  <script src="js/comp.js"></script>
+
+
+ <script> 
+ 
+        var mapCatalog = new MapCatalog(); //testing      
+        sig = {};  // són atributs couns a tots els mapes
+        sig.capa = [];
+
+        sig.crs25831 = new L.Proj.CRS('EPSG:25831', '+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs', {
+            bounds: L.bounds([257909.15, 4484800.15], [535906.39, 4751797.52]),
+            resolutions: [10, 5, 2, 1, 0.5, 0.25, 0.15, 0.05],
+            origin: [257909.15, 4484800.15]
+        });
+     
+        sig.capa['serveiGuiaUrbanaMataro'] = L.tileLayer.wms("http://serveisweb.mataro.cat/cartografia/serveisMP/service?", {
+            layers: 'ly_cache_src_guia_urbana_municipal_qgis_etrs89_wmts',
+            format: 'image/png',
+            crs: sig.crs25831,
+            transparent: true,
+            continuousWorld: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        sig.capa['orto'] =  this.serveiOrtoCache = L.tileLayer.wms('http://mapcache.icgc.cat/map/bases/service?', {
+              layers: 'orto',
+              format: 'image/jpeg',
+              crs: sig.crs25831,
+              continuousWorld: true,
+              attribution: 'Institut Cartogràfic i Geològic de Catalunya -ICGC'
+        });
+
+        sig.capa['serveiBarris'] = L.tileLayer.wms("http://serveiswebdes.mataro.cat/cartografia/serveisQG/qgis/qgis_mapserv.fcgi?map=/home/mapserver_dades/carrega_visor/QGIS/barris.qgs", {
+            layers: 'illes',
+            format: 'image/png',
+            crs: sig.crs25831,
+            continuousWorld: true,
+            transparent: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        sig.capa['serveiDistrictesPostals'] = L.tileLayer.wms("http://serveiswebdes.mataro.cat/cartografia/serveisQG/qgis/qgis_mapserv.fcgi?map=/home/mapserver_dades/carrega_visor/QGIS/districtes_postals.qgs", {
+            layers: 'illes',
+            format: 'image/png',
+            crs: sig.crs25831,
+            continuousWorld: true,
+            transparent: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        sig.capa['serveiABS'] = L.tileLayer.wms("http://serveiswebdes.mataro.cat/cartografia/serveisQG/qgis/qgis_mapserv.fcgi?map=/home/mapserver_dades/carrega_visor/QGIS/abs_vectorial.qgs", {
+            layers: 'illes',
+            format: 'image/png',
+            crs: sig.crs25831,
+            continuousWorld: true,
+            transparent: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        sig.capa['serveiTopoMataro'] = L.tileLayer.wms("http://serveisweb.mataro.cat/cartografia/serveisMP/service?", {
+            layers: 'ly_topo_tms',
+            format: 'image/png',
+            crs: sig.crs25831,
+            transparent: true,
+            continuousWorld: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        
+
+        sig.capa['serveiParcelMataro'] = L.tileLayer.wms("http://serveisweb.mataro.cat/cartografia/serveisMP/service?", {
+            layers: 'ly_cache_src_parcelari_etrs89',
+            format: 'image/png',
+            crs: sig.crs25831,
+            transparent: true,
+            continuousWorld: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        sig.capa['serveiPlanejamentRefos'] = L.tileLayer.wms("http://serveisweb.mataro.cat/cartografia/serveisMP/service?", {
+            layers: 'ly_cache_src_quali_cedi_refos_qgis_etrs89_wmts',
+            format: 'image/png',
+            crs: sig.crs25831,
+            transparent: true,
+            continuousWorld: true,
+            attribution: 'Ajuntament de Mataró',
+        });
+
+        sig.capa['serveiTopoCache'] = L.tileLayer.wms("http://mapcache.icc.cat/map/bases/service?", {
+            layers: 'topo',
+            format: 'image/jpeg',
+            crs: sig.crs25831,
+            continuousWorld: true,
+            attribution: 'Institut Cartogràfic i Geològic de Catalunya -ICGC'
+        });
+
+        sig.capa['OSM'] = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{-y}.png', {
+            tms:true,              
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+    
+    //  }; 
+  //TODO: refer el codi posterior amb expressions javascript                
+  </script>
+  <body style="overflow: hidden;padding:0em;float:left;">
+  <!--div id="titolItem1" style="color:#444;margin-top:0em;width:100%;background-color:#eee;font-size:0.9em;font-weight:bold;text-align:center;min-height:1.8em;height:auto;margin-bottom:0.5em;" id="titol1">Edició de geometries</div>
+  <div id="titolSenseItem1" style="color:#444;margin-top:0em;width:100%;background-color:#eee;font-size:0.9em;font-weight:bold;text-align:center;min-height:1.8em;height:auto;margin-bottom:0.5em;" id="titol1">Titol del mapa</div-->
+  <!-- div style="margin-top:0em;width:100%;height:100px;" id="text">Txt</div Per revisar variables-->
+  <div class="cercawrp" style="width:20%;float:left">
+    <div class="cerca__title"></div>
+      <div class="cerca-inpwrap" >
+        <form id="frm-cerca" onsubmit="return cercaRef('');">
+          <input id="cerca-inp" placeholder="Adreça o Referència Cadastral" >               
+          <div class='cerca__line cerca__line__boto'  style="font-size:0.8em;float:left;margin-right:0em;margin-top:-0.0em;width:1.8em;height:1.3em;margin-left:1em;color:#777" onclick="return cercaRef('ss')">
+            <div class='cerca__line__boto--txt'>                  
+            </div> 
+            <div class='cerca__line__boto--icon'>
+              <i class='fa fa-search'></i>                         
+            </div>
+          </div> 
+        </form>
+      </div>
+      <div class="cerca__data">
+        <div class='cerca__result'> </div> 
+      </div>    
+  </div>
+  
+  
+  
+  
+  <div style="padding:0;margin-top:0em;width:80%;height:100px;float:right" id="map1"> </div>
+  <script>
+  var tititem1 = "Edició de geometries"
+  var tit1 = "Titol del mapa"
+  if (tititem1.length  > 3){
+    $('#titolSenseItem1').hide();
+    }
+  else {
+    $('#titolItem1').hide();
+    if (tit1.length  < 3){
+      $('#titolSenseItem1').hide();                 
+    }  
+  }              
+  </script>            
+
+
+
+<script>
+  sig.mapa1 = {};
+  sig.mapa1.capainici = {};
+
+  setTimeout(function(){    
+      $('.leaflet-top').css('z-index','600');
+      $('.leaflet-bottom').css('z-index','600');
+  },2000);
+
+  sig.mapa1.alc = 'N';
+  sig.mapa1.alcpx = '';
+  sig.mapa1.alcem = '17';
+  
+  if (sig.mapa1.alc == 'N' ) {
+      if (sig.mapa1.alcem.length == 0) {
+         $('#map1').css('height', 'calc(100vh)');  
+      }
+      else{
+         $('#map1').css('height', 'calc(100vh - 0em)');
+      }   
+   }
+  else {
+     $('#map1').css('height', sig.mapa1.alcpx);   
+  }
+
+  setTimeout(function(){  window.dispatchEvent(new Event('resize'));
+                          mapJS1.map.invalidateSize;$('#map1').height( $('#map1').height - 1 ); }
+             ,500);
+
+    sig.mapa1.options = {
+   // capaInicial : $.extend(true, {}, sig.capa['serveiGuiaUrbanaMataro']),  
+    view:{
+      active:true  
+    }
+  };
+
+  mapJS1 = new MapJS (mapCatalog, 'map1', sig.mapa1.options);    
+  
+  sig.mapa1.capesBaseTot = 'GuiaUrbana:Satèl·lit:Planejament';
+            
+  sig.mapa1.capesBase = sig.mapa1.capesBaseTot.split(':');
+  
+  sig.mapa1.baseMaps = {};
+  
+  $.each(sig.mapa1.capesBase,
+         function(index,value){ 
+            switch (value){
+               case 'GuiaUrbana':
+                 $.extend(sig.mapa1.baseMaps , { 'Guia Urbana': sig.capa['serveiGuiaUrbanaMataro'] }); 
+                 break;
+               case 'Satèl·lit':
+                 $.extend(sig.mapa1.baseMaps , { 'Foto Aèria':  sig.capa['orto'] }); 
+                 break;                            
+               case 'Planejament':
+                 $.extend(sig.mapa1.baseMaps , { 'Planejament':  sig.capa['serveiPlanejamentRefos'] }); 
+                 break;  
+               case 'Districtes':
+                 $.extend(sig.mapa1.baseMaps , { 'Districtes': sig.capa['serveiDistrictesPostals'] }); 
+                 break;
+               case 'ABS':
+                 $.extend(sig.mapa1.baseMaps , { 'ABS':  sig.capa['serveiABS'] }); 
+                 break;                            
+               case 'Topogràfic':
+                 $.extend(sig.mapa1.baseMaps , { 'Topogràfic':  sig.capa['serveiTopoCache'] }); 
+                 break;    
+               case 'Barris':
+                 $.extend(sig.mapa1.baseMaps , { 'Barris':  sig.capa['serveiBarris'] }); 
+                 break; 
+               case 'OSM':
+                 $.extend(sig.mapa1.baseMaps , { 'OSM':  sig.capa['OSM'] }); 
+                 break;                                                                                                                                     
+            }
+  });
+
+ 
+  
+   sig.mapa1.capesOverlayTot = 'Districtes:Barris';
+             
+   sig.mapa1.capesOverlay = sig.mapa1.capesOverlayTot.split(':');   
+           
+   sig.mapa1.overlayMaps = {};
+  
+   $.each(sig.mapa1.capesOverlay,
+         function(index,value){ 
+            switch (value){
+               case 'GuiaUrbana':
+                 $.extend(sig.mapa1.overlayMaps , { 'Guia Urbana':sig.capa['serveiGuiaUrbanaMataro'] }); 
+                 break;
+               case 'Satèl·lit':
+                 $.extend(sig.mapa1.overlayMaps , { 'Foto Aèria': sig.capa['orto'] }); 
+                 break; 
+               case 'Planejament':
+                 $.extend(sig.mapa1.overlayMaps , { 'Planejament':  sig.capa['serveiPlanejamentRefos'] }); 
+                 break;                            
+               case 'Districtes':
+                 $.extend(sig.mapa1.overlayMaps , { 'Districtes': sig.capa['serveiDistrictesPostals'] }); 
+                 break;
+               case 'ABS':
+                 $.extend(sig.mapa1.overlayMaps , { 'ABS':  sig.capa['serveiABS'] }); 
+                 break;                            
+               case 'Topogràfic':
+                 $.extend(sig.mapa1.overlayMaps , { 'Topogràfic':  sig.capa['serveiTopoCache'] }); 
+                 break;    
+               case 'Barris':
+                 $.extend(sig.mapa1.overlayMaps , { 'Barris':  sig.capa['serveiBarris'] }); 
+                 break; 
+               case 'OSM':
+                 $.extend(sig.mapa1.overlayMaps , { 'OSM':  sig.capa['OSM'] }); 
+                 break;                            
+                                        
+            }
+  });
+            
+  sig.mapa1.mapControl = L.control.layers(sig.mapa1.baseMaps, sig.mapa1.overlayMaps);
+
+  sig.mapa1.mapControl.addTo(mapJS1.map);
+  sig.mapa1.baseMaps[Object.keys(sig.mapa1.baseMaps)[0]].addTo(mapJS1.map);
+ 
+ // 
+ 
+ // L.control.opacity(sig.mapa1.overlayMaps, {label: '<b>Opacitat</b>', collapsed:true }).addTo(mapJS1.map);
+   L.control.opacity(sig.mapa1.overlayMaps, {collapsed:true }).addTo(mapJS1.map);
+  
+
+
+
+// var sig.WKT_bounds = "";
+            
+ mapJS1.map.on('moveend', function(e) {
+   mapJS1.itembounds = "";                
+   if( mapJS1.itembounds.length > 3 ){ 
+     mapJS1.bbox = mapJS1.map.getBounds(); 
+     mapJS1.lon1  = mapJS1.bbox.getSouthWest().lng;
+     mapJS1.lat1  = mapJS1.bbox.getSouthWest().lat;
+     mapJS1.lon2  = mapJS1.bbox.getNorthEast().lng;
+     mapJS1.lat2  = mapJS1.bbox.getNorthEast().lat;
+     mapJS1.latlngs = [[mapJS1.lat1, mapJS1.lon1],[mapJS1.lat1, mapJS1.lon2],[mapJS1.lat2, mapJS1.lon2],[mapJS1.lat2, mapJS1.lon1],[mapJS1.lat1, mapJS1.lon1]];
+     mapJS1.lo_poligon = L.polygon(mapJS1.latlngs)
+     mapJS1.WKT = toWKT(mapJS1.lo_poligon);
+     
+     mapJS1.map_itemboundsWKT  = '';
+     if ( mapJS1.map_itemboundsWKT.length > 5   ){
+        setTimeout(function(){  apex.item("").setValue(mapJS1.WKT)}, 50);                              
+     }   
+     //$s("", mapJS1.WKT);
+     //mapJS1.params = { "boundswkt": mapJS1.WKT };             
+     //$("#map1").trigger("apex_moveend", mapJS1.params);
+   }; 
+});
+ 
+
+var itemdblclkWKT = ""; 
+
+if( itemdblclkWKT.length > 10 ){ 
+  mapJS1.map.doubleClickZoom.disable();
+  mapJS1.map.on('dblclick', function(e) {
+    $s("", toWKT( L.marker(e.latlng)))
+  });
+}  
+
+
+ </script>
+ 
+
+
+<script>  
+
+var itemEditaGeom = 'Y';
+var itemEditaGeomWKT = 'P96_WKTMAPA';         
+
+if ( itemEditaGeom == 'Y'  ){
+
+  mapJS1.map.editFeatures = L.featureGroup().addTo( mapJS1.map );                  
+  
+
+  mapJS1.options  = {
+     position: 'topleft',
+     draw:{polyline: false,
+           circle: false,
+           line: false,
+           rectangle: false,
+           marker: true,
+           polygon: true,
+           circlemarker: false} ,
+     edit: {
+         featureGroup: mapJS1.map.editFeatures,
+         remove: false
+     }
+   };
+
+   L.drawLocal.draw.toolbar.buttons.polygon = 'Filtra sobre el mapa';
+   L.drawLocal.draw.toolbar.buttons.marker = 'Selecciona un punt en el mapa';
+
+   mapJS1.map.drawControl  = new L.Control.Draw(mapJS1.options);
+   mapJS1.map.drawControl.addTo( mapJS1.map );
+
+
+  mapJS1.map.on('draw:created', function(e) {     
+        
+     // apex.item("P96_WKTMAPA").setValue(toWKT(e.layer));
+      mapJS1.map.editFeatures.clearLayers(); // Esborra les capes (important l''ordre
+      mapJS1.map.editFeatures.addLayer( e.layer); // Afegeix la capa dibuixada
+      alert(toWKT(e.layer));
+
+    });
+
+   mapJS1.map.on('draw:edited', function(e) {
+     e.layers.eachLayer(function(layer){                                
+        alert(toWKT(layer));
+        });
+   });
+
+
+  };
+</script>
+
+
+
+</body>
+
+</html>
